@@ -16,8 +16,9 @@
     <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
     <li><a href="{% url 'account_login' %}">Log In</a></li>
 
-    <!-- https://learndjango.com/tutorials/django-allauth-tutorial (old version)-->
-    <li><a href="{% provider_login_url 'Expenses' %}">Sign in with Google</a></li>
+    <!-- https://learndjango.com/tutorials/django-allauth-tutorial (old version) -->
+    <!-- https://stackoverflow.com/questions/79419279/how-to-use-django-allauth-for-google-api -->
+    <li><a href="{% url 'google_login' %}">Sign in with Google</a></li>
 
   {% endif %}
   <li><a href="{% url 'account_reset_password' %}">Reset Password</a></li>

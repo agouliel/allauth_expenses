@@ -69,7 +69,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-SITE_ID = 1  # new
+SITE_ID = 2
 
 ACCOUNT_EMAIL_VERIFICATION = "none"  # new
 
@@ -83,7 +83,7 @@ SOCIALACCOUNT_PROVIDERS = {
         # https://docs.allauth.org/en/latest/socialaccount/providers/google.html
         'SCOPE': [
             'profile',
-            'calendar',
+            'https://www.googleapis.com/auth/calendar.readonly',
         ],
 
         # offline is necessary in order to receive a refresh token on first login
