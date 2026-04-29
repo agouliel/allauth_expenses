@@ -90,12 +90,22 @@ SOCIALACCOUNT_PROVIDERS = {
         # and on reauthentication requests
         # (which is needed to refresh authentication tokens in the background,
         # without involving the user’s browser)
+
+        # Without `prompt: consent`, Google skips the consent screen for
+        # already-authorized users and omits the refresh token from the response. With
+        # it, the consent screen always appears, and Google always returns a fresh refresh token.
         'AUTH_PARAMS': {
             'access_type': 'offline',
+            'prompt': 'consent',
         },
         'OAUTH_PKCE_ENABLED': True,
     }
 }
+
+# https://stackoverflow.com/questions/79419279/how-to-use-django-allauth-for-google-api
+SOCIALACCOUNT_STORE_TOKENS = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 LOGIN_REDIRECT_URL = "/"
 
