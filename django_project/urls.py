@@ -21,6 +21,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("accounts/", include("allauth.urls")),
+    path("expenses/", include("expenses.urls")),
 
     # https://learndjango.com/tutorials/django-allauth-tutorial
     # this bypasses the need for a separate views.py file

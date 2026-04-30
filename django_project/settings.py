@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     # https://docs.allauth.org/en/latest/installation/quickstart.html
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+
+    'expenses',
 ]
 
 AUTHENTICATION_BACKENDS = [
