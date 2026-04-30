@@ -71,7 +71,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-SITE_ID = 2
+SITE_ID = 1
 
 ACCOUNT_EMAIL_VERIFICATION = "none"  # new
 

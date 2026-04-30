@@ -2,9 +2,9 @@ import datetime
 from .models import Expense
 
 def insert_to_db(service, user_id):
-    now = datetime.datetime.utcnow().isoformat() + 'Z'
-    month_start = datetime.datetime.today().date().replace(day=1).isoformat() + 'T00:00:00.000000Z'
-    month_end = now
+    # sync current month every time
+    month_start = datetime.datetime.today().date().replace(day=1).replace(month=1).isoformat() + 'T00:00:00.000000Z'
+    month_end = datetime.datetime.today().date().isoformat() + 'T00:00:00.000000Z'
 
     events_result = service.events().list(calendarId='primary',
                                             timeMin=month_start,
@@ -13,6 +13,7 @@ def insert_to_db(service, user_id):
                                             orderBy='startTime').execute()
 
     events = events_result.get('items', [])
+    print(events)
 
     events_with_expenses = []
 
@@ -22,9 +23,11 @@ def insert_to_db(service, user_id):
         # Check if we have enough parts and if the first part is numeric
         if parts:
             first_word = parts[0]
+            last_word = parts[-1]
             
             # This check handles both integers and decimals
-            if first_word.replace('.', '', 1).isdigit():
+            if first_word.replace('.', '', 1).isdigit() and last_word.startswith('#'):
+                print(event)
                 amount = float(first_word)
                 hashtag = parts[-1]
                 
