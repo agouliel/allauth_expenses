@@ -1,19 +1,24 @@
 import datetime
 from .models import Expense
 
+# https://developers.google.com/workspace/calendar/api/v3/reference/events/list
+# timeMax and timeMin must be an RFC3339 timestamp with mandatory time zone offset,
+# for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z.
+
 def insert_to_db(service, user_id):
     # sync current month every time
-    month_start = datetime.datetime.today().date().replace(day=1).replace(month=1).isoformat() + 'T00:00:00.000000Z'
-    month_end = datetime.datetime.today().date().isoformat() + 'T00:00:00.000000Z'
+    time_suffix = 'T00:00:00.000000Z'
+    month_start = datetime.datetime.today().date().replace(day=1).isoformat() + time_suffix
+    month_end = datetime.datetime.today().date().isoformat() + time_suffix
 
     events_result = service.events().list(calendarId='primary',
                                             timeMin=month_start,
                                             timeMax=month_end,
+                                            maxResults=2500, # default is 250, max is 2500
                                             singleEvents=True,
                                             orderBy='startTime').execute()
 
     events = events_result.get('items', [])
-    print(events)
 
     events_with_expenses = []
 
@@ -27,7 +32,6 @@ def insert_to_db(service, user_id):
             
             # This check handles both integers and decimals
             if first_word.replace('.', '', 1).isdigit() and last_word.startswith('#'):
-                print(event)
                 amount = float(first_word)
                 hashtag = parts[-1]
                 
