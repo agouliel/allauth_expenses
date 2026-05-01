@@ -23,8 +23,11 @@ def show_calendar(request):
     insert_to_db(service, request.user)
 
     # Fetch the newly saved expenses to show in the template
-    expenses = Expense.objects.filter(user=request.user)
+    expenses = Expense.objects.filter(user=request.user).exclude(hashtag__isnull=True)
     #print(expenses)
+
+    expenses_no_hashtag = Expense.objects.filter(user=request.user).exclude(hashtag__isnull=False)
+    print(expenses_no_hashtag)
 
     # https://chatgpt.com/c/69ef68dc-8920-8332-aca8-efc06fde66b2
     year = request.GET.get("year")

@@ -9,13 +9,14 @@ def insert_to_db(service, user_id):
     # sync current month every time
     time_suffix = 'T00:00:00.000000Z'
     month_start = datetime.datetime.today().date().replace(day=1).isoformat() + time_suffix
-    month_end = datetime.datetime.today().date().isoformat() + time_suffix
+    month_end = (datetime.datetime.today() + datetime.timedelta(days=1)).date().isoformat() + time_suffix
 
     events_result = service.events().list(calendarId='primary',
                                             timeMin=month_start,
                                             timeMax=month_end,
                                             maxResults=2500, # default is 250, max is 2500
                                             singleEvents=True,
+                                            q='#',
                                             orderBy='startTime').execute()
 
     events = events_result.get('items', [])
@@ -48,13 +49,58 @@ def insert_to_db(service, user_id):
     # end for event in events
 
     for event in events_with_expenses:
-        # Use update_or_create to prevent duplicates based on the Google Event ID
         Expense.objects.update_or_create(
             id=event['id'],
             defaults={
                 'user': event.get('user'),
                 'date_start': event.get('date_start'),
                 'hashtag': event.get('hashtag'),
+                'summary': event.get('summary', 'No Title'),
+                'amount': event.get('amount'),
+                'url': event.get('url'),
+            }
+        )
+
+    # Get events with no hashtag
+    events_result = service.events().list(calendarId='primary',
+                                            timeMin=month_start,
+                                            timeMax=month_end,
+                                            maxResults=2500, # default is 250, max is 2500
+                                            singleEvents=True,
+                                            orderBy='startTime').execute()
+
+    events = events_result.get('items', [])
+
+    events_with_expenses_no_hashtag = []
+
+    for event in events:
+        parts = event.get("summary", "").split()
+        
+        if parts:
+            first_word = parts[0]
+            last_word = parts[-1]
+            
+            if first_word.replace('.', '', 1).isdigit() and not last_word.startswith('#'):
+                amount = float(first_word)
+
+                event_with_expense = {
+                    'id': event.get('id'),
+                    'user': user_id,
+                    'date_start': event['start']['dateTime'][:10],
+                    'summary': ' '.join(parts[1:-1]),
+                    'amount': amount,
+                    'url': event.get('htmlLink')
+                }
+                events_with_expenses_no_hashtag.append(event_with_expense)
+    # end for event in events
+
+    for event in events_with_expenses_no_hashtag:
+        Expense.objects.update_or_create(
+            id=event['id'],
+            defaults={
+                'user': event.get('user'),
+                'date_start': event.get('date_start'),
+                'hashtag': None,
                 'summary': event.get('summary', 'No Title'),
                 'amount': event.get('amount'),
                 'url': event.get('url'),
