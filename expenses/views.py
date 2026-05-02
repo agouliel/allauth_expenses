@@ -7,12 +7,7 @@ from calendar import month_abbr
 import json
 
 def serialize_expense(e):
-    return {
-        "id": e.id,
-        "summary": e.summary,
-        "amount": e.amount,
-        "url": e.url,
-    }
+    return {"id": e.id, "summary": e.summary, "amount": e.amount, "url": e.url,}
 
 def show_calendar(request):
     service = get_calendar_service(request.user)
@@ -54,10 +49,17 @@ def show_calendar(request):
         pivot[category][month] += exp.amount or 0
         expense_map[(category, month)].append(exp)
     
+    # keys look like this: expense_map[(category, month)] = [...]
+    # In Python, that becomes something like: {('Food', 1): [...]}
+    # But in JavaScript, this turns into: {(Food, 1): [...]} (invalid because JSON requires string keys, not tuples)
+    # Convert keys to strings and serialize
     expense_map_serialized = {
         f"{category}|{month}": [serialize_expense(e) for e in expenses]
         for (category, month), expenses in expense_map.items()
     }
+
+    # in one step:
+    # expense_map[f"{category}|{month}"].append({"id": e.id, "summary": e.summary, "amount": e.amount, "url": e.url,})
 
     # Totals
     totals_by_month = {m: 0 for m in range(1, 13)}
@@ -72,7 +74,6 @@ def show_calendar(request):
     
     context = {
         "pivot": dict(pivot),
-        "expense_map": dict(expense_map),
         "totals_by_month": totals_by_month,
         "totals_by_category": totals_by_category,
         "year": year,
